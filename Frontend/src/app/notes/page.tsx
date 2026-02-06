@@ -27,6 +27,7 @@ import {
   FormLabel,
 } from '@chakra-ui/react';
 import { AddIcon, DeleteIcon } from '@chakra-ui/icons';
+import { formatTaiwanTime } from '@/utils/dateFormat';
 
 export default function NotesPage() {
   const router = useRouter();
@@ -139,7 +140,7 @@ export default function NotesPage() {
                   {note.title}
                 </Heading>
                 <Text color="gray.500" fontSize="sm">
-                  最後更新：{new Date(note.updated_at).toLocaleString()}
+                  最後更新：{formatTaiwanTime(note.updated_at)}
                 </Text>
               </Box>
               <HStack spacing={2}>

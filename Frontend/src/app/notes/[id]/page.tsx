@@ -70,6 +70,8 @@ export default function NotePage({ params }: { params: { id: string } }) {
   );
 
   useEffect(() => {
+    if (!params.id) return;
+
     socketService.connect();
     const loadNote = async () => {
       try {
@@ -78,6 +80,7 @@ export default function NotePage({ params }: { params: { id: string } }) {
         setTitle(noteData.title);
         setContent(noteData.content);
       } catch (error) {
+        console.error('載入筆記失敗:', error);
         toast({
           title: '載入筆記失敗',
           description: '請稍後再試',
@@ -91,24 +94,15 @@ export default function NotePage({ params }: { params: { id: string } }) {
 
     loadNote();
     console.log('加入筆記房間:', params.id);
-    socketService.joinNote(params.id);// join note room
+    socketService.joinNote(params.id); // join note room
 
-
-    socketService.onNoteUpdate((data) => {//這裡沒有發生更新事件
+    socketService.onNoteUpdate((data) => {
       console.log('收到筆記更新:', data);
-      // if (data.note_id === params.id) {//backend 是 note_id
-      if (1 == 1) {
+      // 檢查是否是當前筆記的更新
+      if (data.id === params.id) {
         console.log('更新當前筆記:', data);
         setTitle(data.title);
         setContent(data.content);
-        // add toast to notify user?
-        // toast({                  // 顯示提示訊息
-        //     title: '筆記已更新',
-        //     description: '其他使用者已更新筆記內容',
-        //     status: 'info',
-        //     duration: 2000,
-        //     position: 'bottom-right',
-        // });
       }
     });
 
@@ -117,10 +111,9 @@ export default function NotePage({ params }: { params: { id: string } }) {
       socketService.leaveNote(params.id);
       console.log('移除筆記更新監聽器');
       socketService.offNoteUpdate();
-      //debouncedUpdate.cancel();//?
+      debouncedUpdate.cancel();
     };
-    // }, [params.id, getNote, router, toast, debouncedUpdate]);
-  }, []);
+  }, [params.id, getNote, router, toast, debouncedUpdate]);
 
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newTitle = e.target.value;
